@@ -2,33 +2,37 @@ name: Build Java Project
 
 on: [push, workflow-dispatch, workflow_call]
 
+inputs:
+  java-version:
+    description: 'Java version to use (e.g., 17, 21)'
+    required: false
+    default: '17'
+
 runs:
-  build:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        java-version: [17, 21]
+  using: 'composite'
+  steps:
+    - name: Set up Java environment
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ inputs.java-version }}
+        distribution: 'temurin'
+    
+    - name: Java version
+      run: java -version
+      shell: bash
 
-    using: "composite"
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Build with Maven
+      run: mvn clean install
+      shell: bash
 
-      - name: Set up JDK
-        uses: actions/setup-java@v4
-        with:
-          java-version: ${{ matrix.java-version }}
-          distribution: 'temurin'
+    - name: Run tests
+      run: mvn test
+      shell: bash
 
-      - name: Build with Maven
-        run: mvn clean install
+    - name: Package application
+      run: mvn package
+      shell: bash
 
-      - name: Run tests
-        run: mvn test
-
-      - name: Package application
-        run: mvn package
-
-      - name: Success message
-        run: echo "Build and tests completed successfully!"
-
+    - name: Success message
+      run: echo "Build and tests completed successfully!"
+      shell: bash
