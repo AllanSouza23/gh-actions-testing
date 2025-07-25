@@ -1,0 +1,30 @@
+name: Build Java Project
+
+on: [push, workflow-dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build with Maven
+        run: mvn clean install
+
+      - name: Run tests
+        run: mvn test
+
+      - name: Package application
+        run: mvn package
+
+      -name: Success message
+        run: echo "Build and tests completed successfully!"
+
